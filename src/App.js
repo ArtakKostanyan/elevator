@@ -72,15 +72,20 @@ function findElevator(requestFloor, requestDirection)
 
 function App() {
 
+    const floorsPos = {
+        1: ''
+    }
     const floors = [1,2,3,4,5,6,7,8,9]
     const elevatorRef = useRef();
     const floorsRef = useRef();
+    const requestIdRef = useRef();
     const [calledFloor,setCalledFloor]=useState([])
     const [current,setCurrent] = useState({})
     const [upFloors,setUpFloors]=useState([])
     const [downFloors,setDownFloors]=useState([])
+    const [isElevatorMove,setElevatorIsMove]=useState(false)
 
-
+    //
     useEffect(()=>{
         // setTimeout(()=>{
             updateElevator()
@@ -90,37 +95,65 @@ function App() {
 
     useEffect(()=>{
         elevatorAnimation()
+
     },[current]);
 
     const elevatorAnimation = () => {
         let element = document.querySelector(`[data-floor='${current.id || 1}']`);
+        let elev = document.querySelector(`.elevator`);
+
+        // deltaTime = new Date().getTime()-previousTime;
+        // previousTime = new Date().getTime()
+
+        elevatorRef.current.style.offsetTop = element.offsetTop+"px";
         elevatorRef.current.animate([
-            { transform: `translateY(${element.getBoundingClientRect().top - 56 + 'px'})` }
+            { transform: `translateY(${element.offsetTop + 'px'})` }
         ], {
             // timing options
-            duration: 2000,
+             duration: 2000,
             fill:'forwards'
         })
+
+        let ids='';
+         if (elevatorRef.current.style.offsetTop === element.offsetTop+'px'){
+
+             console.log('ppp')
+                let newUp= upFloors.filter(item=>item===current.id)
+                let array = newUp.sort();
+                setUpFloors(array);
+
+           ids= requestAnimationFrame(elevatorAnimation)
+        }
+
+          cancelAnimationFrame(ids)
+       // setElevatorIsMove(true)
+
     }
     const updateElevator = () => {
 
-
-        if (current.direction===UP ){
+         if (current.direction===UP){
             let array = upFloors.sort();
-            let lng = array.length
-            let newArr=[];
+
+            let elId=''
             for (let i=0;i< array.length;i++){
 
                 if (current.id<array[i] ){
-                    // setTimeout(()=>{
-                        setCurrent({...current,id:array[i]})
-                    // },0)
+                     // setTimeout(()=>{
+                    // setInterval(()=>{
+                    //     elevatorAnimation()
+                    // },1000)
+                      //   requestIdRef.current = requestAnimationFrame(elevatorAnimation)
+                        console.log(elId,'pppp')
+                      //  setCurrent({...current,id:array[i]})
+                     // },2000)
 
-                    array.splice(i,1);
+                     array.splice(i,1);
                 }
-            }
-            console.log(array,"eeee");
+
+             }
+          //  console.log(array,"eeee");
             setUpFloors(array)
+
             // if (downFloors.length===0){
             //     setTimeout(()=>{
             //         setCurrent({ id:1,direction:DOWN})
@@ -129,9 +162,7 @@ function App() {
             // }
 
             console.log(array,'up')
-        }
-
-        if(current.direction===DOWN){
+        }else if(current.direction===DOWN){
             console.log(']]]]]]')
             let array = downFloors.sort();
             if (array.length===0){
@@ -174,21 +205,20 @@ function App() {
 
     const handleClick = (e,id,direction) => {
 
-        // if (upFloors.length===0 && downFloors.length ===0 ){
-        //     setCurrent({id,direction})
-        // }
+        if (upFloors.length===0 && downFloors.length ===0 ){
+            setCurrent({id,direction})
+        }
 
-        if (upFloors.length===0){
-            setCurrent({id,direction:DOWN})
-        }
-        if (downFloors.length===0){
-            setCurrent({id,direction:UP})
-        }
+        // if (upFloors.length===0){
+        //     setCurrent({id,direction:DOWN})
+        // }
+        // if (downFloors.length===0){
+        //     setCurrent({id,direction:UP})
+        // }
         if (direction===UP){
             setUpFloors((prev)=>[...prev,id])
         }else {
-            console.log('ppppp')
-            setDownFloors((prev)=>[...prev,id])
+             setDownFloors((prev)=>[...prev,id])
         }
         // const obj = { id:id, direction:direction };
         //
